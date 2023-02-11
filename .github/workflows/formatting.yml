@@ -4,6 +4,7 @@ on: push
 
 jobs:
   format:
+    name: 'Black and Flake8'
     runs-on: ubuntu-latest
 
     steps:
