@@ -19,7 +19,8 @@ jobs:
       run: |
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
         export NVM_DIR="$HOME/.nvm"
-        [ -s "/home/runner/.nvm/nvm.sh" ] && \. "/home/runner/.nvm/nvm.sh"  # This loads nvm
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        export PATH="$PATH:$NVM_DIR/versions/node/$(nvm version)/bin"
       shell: bash
 
     - name: Install Node.js
