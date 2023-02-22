@@ -34,8 +34,8 @@ jobs:
         bench init frappe-bench --skip-assets --python $(which python)
         cd frappe-bench
         bench setup requirements --dev
-        mkdir frappe-bench/sites/test_site
-        cp .travis/mariadb.json frappe-bench/sites/test_site/site_config.json
+        mkdir sites/test_site
+        cp .travis/mariadb.json sites/test_site/site_config.json
         mysql -u root -e "SET GLOBAL character_set_server = 'utf8mb4'"
         mysql -u root -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
         mysql -u root -e "DROP DATABASE IF EXISTS $DB_NAME"
