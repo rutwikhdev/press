@@ -28,11 +28,12 @@ jobs:
       run: |
         sudo apt-get update && sudo apt-get install -y mariadb-client
         pip install frappe-bench flake8 black Click==8.0.2 git+https://github.com/adityahase/black
-        cd frappe-bench
-        bench setup requirements --dev
+
     - name: Initialize Frappe Bench
       run: |
         bench init frappe-bench --skip-assets --python $(which python)
+        cd frappe-bench
+        bench setup requirements --dev
         mkdir frappe-bench/sites/test_site
         cp .travis/mariadb.json frappe-bench/sites/test_site/site_config.json
         mysql -u root -e "SET GLOBAL character_set_server = 'utf8mb4'"
