@@ -1,9 +1,6 @@
 name: Press Tests
 
-on:
-  push:
-    branches:
-      - main
+on: push
 
 env:
   DB_NAME: test_frappe
