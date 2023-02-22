@@ -19,13 +19,11 @@ jobs:
       run: |
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
         export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        [ -s "/home/runner/.nvm/nvm.sh" ] && \. "/home/runner/.nvm/nvm.sh"  # This loads nvm
       shell: bash
 
     - name: Install Node.js
-      run: |
-        source ./.nvm/nvm.sh
-        nvm install 14
+      run: nvm install 14
       shell: bash
       
     - name: Set up Python ${{ matrix.python-version }}
