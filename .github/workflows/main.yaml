@@ -15,17 +15,10 @@ jobs:
         python-version: [3.10.10]
     steps:
     - uses: actions/checkout@v2
-    - name: Install nvm
-      run: |
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-        export PATH="$PATH:$NVM_DIR/versions/node/$(nvm version)/bin"
-      shell: bash
-
-    - name: Install Node.js
-      run: nvm install 14
-      shell: bash
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3.6.0
+      with:
+        node-version: 14.x
       
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
