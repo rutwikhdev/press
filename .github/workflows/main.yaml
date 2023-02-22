@@ -33,9 +33,10 @@ jobs:
       run: |
         bench init frappe-bench --skip-assets --python $(which python)
         cd frappe-bench
+        bench get-app press /path/to/press
         bench setup requirements --dev
         mkdir sites/test_site
-        cp .travis/mariadb.json sites/test_site/site_config.json
+        cp apps/press/.travis/mariadb.json sites/test_site/site_config.json
         mysql -u root -e "SET GLOBAL character_set_server = 'utf8mb4'"
         mysql -u root -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
         mysql -u root -e "DROP DATABASE IF EXISTS $DB_NAME"
@@ -48,7 +49,6 @@ jobs:
         sed -i 's/schedule:/# schedule:/g' Procfile
         sed -i 's/socketio:/# socketio:/g' Procfile
         sed -i 's/redis_socketio:/# redis_socketio:/g' Procfile
-        bench get-app press /path/to/press
         bench start &
         bench --site test_site reinstall --yes
     - name: Backbone Base Image Build
