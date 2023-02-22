@@ -26,7 +26,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        sudo apt-get update && sudo apt-get install -y mariadb-client
+        sudo apt-get update && sudo apt-get install -y mariadb-client redis-server
         pip install frappe-bench flake8 black Click==8.0.2 git+https://github.com/adityahase/black
 
     - name: Initialize Frappe Bench
