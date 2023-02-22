@@ -23,7 +23,9 @@ jobs:
       shell: bash
 
     - name: Install Node.js
-      run: nvm install 14
+      run: |
+        source ./.nvm/nvm.sh
+        nvm install 14
       shell: bash
       
     - name: Set up Python ${{ matrix.python-version }}
