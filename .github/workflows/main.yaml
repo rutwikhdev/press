@@ -31,9 +31,10 @@ jobs:
 
     - name: Initialize Frappe Bench
       run: |
+        cd ..
         bench init frappe-bench --skip-assets --python $(which python)
         cd frappe-bench
-        bench get-app press /path/to/press
+        bench get-app press ../press
         bench setup requirements --dev
         mkdir sites/test_site
         cp apps/press/.travis/mariadb.json sites/test_site/site_config.json
