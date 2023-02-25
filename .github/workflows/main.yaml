@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install frappe-bench flake8 git+https://github.com/adityahase/black
+          pip install flake8 git+https://github.com/adityahase/black
       - name: Black Test
         run: |
           black --check ${GITHUB_WORKSPACE}/press/press
@@ -65,6 +65,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update && sudo apt-get install -y mariadb-client redis-server
+        pip install frappe-bench
 
     - name: Initialize Frappe Bench
       run: |
