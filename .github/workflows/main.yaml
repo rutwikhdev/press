@@ -46,7 +46,10 @@ jobs:
       mariadb:
         image: mariadb:10.6
         env:
-          MARIADB_ROOT_PASSWORD: travis
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_frappe
+          MYSQL_USER: test_frappe
+          MYSQL_PASSWORD: test_frappe
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
@@ -76,14 +79,14 @@ jobs:
         bench setup requirements --dev
         mkdir sites/test_site
         cp apps/press/.travis/mariadb.json sites/test_site/site_config.json
-        mysql -u root -e "SET GLOBAL character_set_server = 'utf8mb4'"
-        mysql -u root -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
-        mysql -u root -e "DROP DATABASE IF EXISTS $DB_NAME"
-        mysql -u root -e "CREATE DATABASE $DB_NAME"
-        mysql -u root -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD'"
-        mysql -u root -e "GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'localhost'"
-        mysql -u root -e "UPDATE mysql.user SET Password=PASSWORD('travis') WHERE User='root'"
-        mysql -u root -e "FLUSH PRIVILEGES"
+        mysql -u root -p test_frappe -e "SET GLOBAL character_set_server = 'utf8mb4'"
+        mysql -u root -p test_frappe -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
+        mysql -u root -p test_frappe -e "DROP DATABASE IF EXISTS $DB_NAME"
+        mysql -u root -p test_frappe -e "CREATE DATABASE $DB_NAME"
+        mysql -u root -p test_frappe -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD'"
+        mysql -u root -p test_frappe -e "GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'localhost'"
+        mysql -u root -p test_frappe -e "UPDATE mysql.user SET Password=PASSWORD('travis') WHERE User='root'"
+        mysql -u root -p test_frappe -e "FLUSH PRIVILEGES"
         sed -i 's/watch:/# watch:/g' Procfile
         sed -i 's/schedule:/# schedule:/g' Procfile
         sed -i 's/socketio:/# socketio:/g' Procfile
