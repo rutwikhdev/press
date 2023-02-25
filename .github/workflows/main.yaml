@@ -32,7 +32,7 @@ jobs:
         run: |
           flake8 --ignore W191,E501,W503 ${GITHUB_WORKSPACE}/press/press
           
-  backbone:
+  build:
     runs-on: ubuntu-22.04
     env:
       USER: ${{ github.actor }}
@@ -43,89 +43,58 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306/tcp
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3    strategy:
+      matrix:
+        python-version: [3.10.10]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Install Packer
-        run: |
-          sudo rm /usr/local/bin/packer
-          python3 ${{ github.workspace }}/backbone/setup.py
-
-      - name: Build Backbone Base Image
-        run: |
-          sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor build'
-          sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor up'
-          sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor ssh -c "echo Hello, World"'
-
-      - name: Prepare Cache Directories
-        run: |
-          mkdir -p ${{ github.workspace }}/backbone/packer/images
-          mkdir -p ${{ github.workspace }}/backbone/packer/builds
-
-      - name: Cache Directories
-        uses: actions/cache@v2
-        with:
-          path: |
-            ${{ github.workspace }}/backbone/packer/images
-            ${{ github.workspace }}/backbone/packer/builds
-          key: ${{ runner.os }}-cache-${{ hashFiles('**/requirements.txt') }}
-          
-#   build:
-#     runs-on: ubuntu-22.04
-#     strategy:
-#       matrix:
-#         python-version: [3.10.10]
-#     steps:
-#     - uses: actions/checkout@v2
-#     - name: Setup Node.js environment
-#       uses: actions/setup-node@v3.6.0
-#       with:
-#         node-version: 14.x
+    - uses: actions/checkout@v2
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3.6.0
+      with:
+        node-version: 14.x
       
-#     - name: Set up Python ${{ matrix.python-version }}
-#       uses: actions/setup-python@v2
-#       with:
-#         python-version: ${{ matrix.python-version }}
-#     - name: Install dependencies
-#       run: |
-#         sudo apt-get update && sudo apt-get install -y mariadb-client redis-server
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        sudo apt-get update && sudo apt-get install -y mariadb-client redis-server
 
-#     - name: Initialize Frappe Bench
-#       run: |
-#         cd ..
-#         bench init frappe-bench --skip-assets --python $(which python)
-#         cd frappe-bench
-#         bench get-app ../press press
-#         bench setup requirements --dev
-#         mkdir sites/test_site
-#         cp apps/press/.travis/mariadb.json sites/test_site/site_config.json
-#         mysql -u root -e "SET GLOBAL character_set_server = 'utf8mb4'"
-#         mysql -u root -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
-#         mysql -u root -e "DROP DATABASE IF EXISTS $DB_NAME"
-#         mysql -u root -e "CREATE DATABASE $DB_NAME"
-#         mysql -u root -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD'"
-#         mysql -u root -e "GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'localhost'"
-#         mysql -u root -e "UPDATE mysql.user SET Password=PASSWORD('travis') WHERE User='root'"
-#         mysql -u root -e "FLUSH PRIVILEGES"
-#         sed -i 's/watch:/# watch:/g' Procfile
-#         sed -i 's/schedule:/# schedule:/g' Procfile
-#         sed -i 's/socketio:/# socketio:/g' Procfile
-#         sed -i 's/redis_socketio:/# redis_socketio:/g' Procfile
-#         bench start &
-#         bench --site test_site reinstall --yes
-#     - name: Backbone Base Image Build
-#       if: contains(github.event.head_commit.message, 'travis:rebuild-image')
-#       run: |
-#         sudo rm /usr/local/bin/packer
-#         python3 /path/to/backbone/setup.py
-#         sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor build'
-#         sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor up'
-#         sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor ssh -c "echo Hello, World"'
-#       env:
-#         USER: $USER
-#     - name: Press Tests
-#       run: |
-#         bench --site test_site run-tests --app press
-#         cd apps/press/dashboard && yarn run test
+    - name: Initialize Frappe Bench
+      run: |
+        cd ..
+        bench init frappe-bench --skip-assets --python $(which python)
+        cd frappe-bench
+        bench get-app ../press press
+        bench setup requirements --dev
+        mkdir sites/test_site
+        cp apps/press/.travis/mariadb.json sites/test_site/site_config.json
+        mysql -u root -e "SET GLOBAL character_set_server = 'utf8mb4'"
+        mysql -u root -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
+        mysql -u root -e "DROP DATABASE IF EXISTS $DB_NAME"
+        mysql -u root -e "CREATE DATABASE $DB_NAME"
+        mysql -u root -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD'"
+        mysql -u root -e "GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'localhost'"
+        mysql -u root -e "UPDATE mysql.user SET Password=PASSWORD('travis') WHERE User='root'"
+        mysql -u root -e "FLUSH PRIVILEGES"
+        sed -i 's/watch:/# watch:/g' Procfile
+        sed -i 's/schedule:/# schedule:/g' Procfile
+        sed -i 's/socketio:/# socketio:/g' Procfile
+        sed -i 's/redis_socketio:/# redis_socketio:/g' Procfile
+        bench start &
+        bench --site test_site reinstall --yes
+    - name: Backbone Base Image Build
+      if: contains(github.event.head_commit.message, 'travis:rebuild-image')
+      run: |
+        sudo rm /usr/local/bin/packer
+        python3 /path/to/backbone/setup.py
+        sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor build'
+        sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor up'
+        sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor ssh -c "echo Hello, World"'
+      env:
+        USER: $USER
+    - name: Press Tests
+      run: |
+        bench --site test_site run-tests --app press
+        cd apps/press/dashboard && yarn run test
