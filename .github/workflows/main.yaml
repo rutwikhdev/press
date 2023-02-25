@@ -35,7 +35,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     env:
-      USER: ${{ github.actor }}
+      USER: root
     strategy:
       fail-fast: false
       matrix:
@@ -90,16 +90,7 @@ jobs:
         sed -i 's/redis_socketio:/# redis_socketio:/g' Procfile
         bench start &
         bench --site test_site reinstall --yes
-    - name: Backbone Base Image Build
-      if: contains(github.event.head_commit.message, 'travis:rebuild-image')
-      run: |
-        sudo rm /usr/local/bin/packer
-        python3 /path/to/backbone/setup.py
-        sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor build'
-        sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor up'
-        sudo -E su $USER -c '~/virtualenv/python3.7/bin/backbone hypervisor ssh -c "echo Hello, World"'
-      env:
-        USER: $USER
+
     - name: Press Tests
       run: |
         bench --site test_site run-tests --app press
